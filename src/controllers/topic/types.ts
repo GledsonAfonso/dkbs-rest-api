@@ -8,13 +8,21 @@ export type Topic = Omit<
   | "updatedAt"
 >;
 
-export const createTopicSchema = z.object({
+export const topicSchema = z.object({
   name: z.string(),
   content: z.string(),
   parentTopicId: z.number().optional(),
   parentTopicVersion: z.number().optional(),
 });
 
-export const getTopicByIdSchema = z.object({
+export const byIdSchema = z.object({
   id: z.coerce.number(),
+});
+
+export const updateTopicSchema = z.object({
+  id: z.coerce.number(),
+  name: z.string().optional(),
+  content: z.string().optional(),
+  parentTopicId: z.number().optional(),
+  parentTopicVersion: z.number().optional(),
 });

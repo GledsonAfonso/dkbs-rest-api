@@ -8,17 +8,14 @@ export type IdAndVersionParams = IdParam & {
   version: number;
 };
 
-export type CreateTopicParams = Omit<
+export type CreateTopicParams = Pick<
   Topic,
-  | "id"
-  | "version"
-  | "parentTopicId"
-  | "parentTopicVersion"
-  | "createdAt"
-  | "updatedAt"
+  | "name"
+  | "content"
 > & {
+  version?: number;
   parentTopicId?: number | null;
   parentTopicVersion?: number | null;
 };
 
-export type UpdateTopicParams = Partial<Topic> & IdAndVersionParams;
+export type UpdateTopicParams = Partial<Topic> & IdParam;

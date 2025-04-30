@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import { ZodError } from "zod";
 
 export class HttpError extends Error {
   status: number;
@@ -18,15 +19,31 @@ export class NotFoundError extends HttpError {
   }
 };
 
+const getHttpError = (error: Error): HttpError => {
+  if (error instanceof HttpError) {
+    return error;
+  } else if (error instanceof ZodError) {
+    return new HttpError({
+      message: (error as ZodError).message,
+      status: 400,
+    });
+  }
+
+  return new HttpError({
+    message: error.message,
+  });
+};
+
 export const errorHandler = (
-  err: HttpError,
-  req: Request,
-  res: Response,
+  error: Error,
+  request: Request,
+  response: Response,
   next: NextFunction
 ) => {
-  console.error(err);
+  const httpError = getHttpError(error);
+  console.log(httpError);
 
-  res.status(err.status).json({
-    message: err.message,
+  response.status(httpError.status).json({
+    message: httpError.message,
   });
 };

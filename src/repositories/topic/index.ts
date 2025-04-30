@@ -9,7 +9,7 @@ const createTopic = async (data: CreateTopicParams): Promise<Topic> => {
   return databaseClient.topic.create({
     data: {
       ...data,
-      version: 1, // first version is always 1
+      version: data.version ?? 1, // first version should always be 1
     },
   });
 };
@@ -25,7 +25,7 @@ const findTopicByIdAndVersion = async (data: IdAndVersionParams): Promise<Topic 
   });
 };
 
-const findLatestTopicWithChildTopics = async (data: IdParam): Promise<Topic | null> => {
+const findLatestTopic = async (data: IdParam): Promise<Topic | null> => {
   return databaseClient.topic.findFirst({
     where: {
       id: data.id,
@@ -37,25 +37,27 @@ const findLatestTopicWithChildTopics = async (data: IdParam): Promise<Topic | nu
 };
 
 const updateTopic = async (data: UpdateTopicParams): Promise<Topic> => {
-  const previousTopic = await findTopicByIdAndVersion({
+  const previousTopic = await findLatestTopic({
     id: data.id,
-    version: data.version,
   });
 
   if (!previousTopic) {
     throw new NotFoundError({
-      message: `Topic with id ${data.id} and version ${data.version} was not found.`,
+      message: `Topic with id ${data.id} was not found.`,
     });
   }
 
   const newTopic: Topic = {
     ...previousTopic,
+    ...data,
     version: previousTopic.version + 1, // iterating the field for a new version
 
     // overriding dates to facilitate future searches for latest versions
     createdAt: new Date(),
     updatedAt: new Date(),
   };
+
+  console.log(newTopic);
 
   return createTopic(newTopic);
 };
@@ -71,7 +73,7 @@ const deleteTopic = async (data: IdParam) => {
 export default {
   createTopic,
   findTopicByIdAndVersion,
-  findLatestTopicWithChildTopics,
+  findLatestTopic,
   updateTopic,
   deleteTopic,
 };
