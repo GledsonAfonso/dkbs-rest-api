@@ -1,26 +1,9 @@
 import { getDatabaseClient } from "@config/database";
-import { NotFoundError } from "@models/errors";
+import { NotFoundError } from "@middlewares/error-handler";
 import { Topic } from "@models/topic";
+import { CreateTopicParams, IdAndVersionParams, IdParam, UpdateTopicParams } from "@repositories/topic/types";
 
 const databaseClient = getDatabaseClient();
-
-type IdParam = {
-  id: number;
-};
-
-type IdAndVersionParams = IdParam & {
-  version: number;
-};
-
-type CreateTopicParams = Omit<
-  Topic,
-  | "id"
-  | "version"
-  | "createdAt"
-  | "updatedAt"
->;
-
-type UpdateTopicParams = Partial<Topic> & IdAndVersionParams;
 
 const createTopic = async (data: CreateTopicParams): Promise<Topic> => {
   return databaseClient.topic.create({
@@ -60,7 +43,9 @@ const updateTopic = async (data: UpdateTopicParams): Promise<Topic> => {
   });
 
   if (!previousTopic) {
-    throw new NotFoundError(`Topic with id ${data.id} and version ${data.version} was not found.`);
+    throw new NotFoundError({
+      message: `Topic with id ${data.id} and version ${data.version} was not found.`,
+    });
   }
 
   const newTopic: Topic = {
@@ -83,7 +68,7 @@ const deleteTopic = async (data: IdParam) => {
   })
 };
 
-export {
+export default {
   createTopic,
   findTopicByIdAndVersion,
   findLatestTopicWithChildTopics,

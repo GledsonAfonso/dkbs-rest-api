@@ -1,8 +1,22 @@
 import { Request, Response, NextFunction } from "express";
 
-export interface HttpError extends Error {
-  status?: number;
+export class HttpError extends Error {
+  status: number;
+
+  constructor(input: { message?: string, status?: number }) {
+    super(input.message ?? "Internal Server Error");
+    this.status = input.status ?? 500;
+  }
 }
+
+export class NotFoundError extends HttpError {
+  constructor(input: { message?: string, status?: number }) {
+    super({
+      message: input.message,
+      status: input.status ?? 404,
+    });
+  }
+};
 
 export const errorHandler = (
   err: HttpError,
@@ -11,7 +25,8 @@ export const errorHandler = (
   next: NextFunction
 ) => {
   console.error(err);
-  res.status(err.status || 500).json({
-    message: err.message || "Internal Server Error",
+
+  res.status(err.status).json({
+    message: err.message,
   });
 };
