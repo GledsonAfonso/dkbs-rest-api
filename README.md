@@ -9,6 +9,7 @@
 - Docker 28.1.1 (build 4eba377)
 - Docker Compose 2.35.1
 - pnpm 10.7.0
+- npx 10.9.2
 
 
 ## General setup
