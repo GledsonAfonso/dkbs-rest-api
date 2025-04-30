@@ -12,11 +12,22 @@ type IdAndVersionParams = IdParam & {
   version: number;
 };
 
+type CreateTopicParams = Omit<
+  Topic,
+  | "id"
+  | "version"
+  | "createdAt"
+  | "updatedAt"
+>;
+
 type UpdateTopicParams = Partial<Topic> & IdAndVersionParams;
 
-const createTopic = async (data: Topic): Promise<Topic> => {
+const createTopic = async (data: CreateTopicParams): Promise<Topic> => {
   return databaseClient.topic.create({
-    data,
+    data: {
+      ...data,
+      version: 1, // first version is always 1
+    },
   });
 };
 
