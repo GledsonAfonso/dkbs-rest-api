@@ -7,3 +7,48 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum Role {
+  Admin
+  Editor
+  Viewer
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  role      Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Topic {
+  id                 Int      @default(autoincrement())
+  name               String
+  content            String
+  version            Int
+  parentTopicId      Int?
+  parentTopicVersion Int?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  parentTopic Topic?     @relation("ParentChildTopics", fields: [parentTopicId, parentTopicVersion], references: [id, version])
+  childTopics Topic[]    @relation("ParentChildTopics")
+  resources   Resource[]
+
+  @@id(name: "topicId", [id, version])
+}
+
+model Resource {
+  id           Int      @id @default(autoincrement())
+  description  String
+  url          String
+  type         String
+  topicId      Int
+  topicVersion Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  topic Topic @relation(fields: [topicId, topicVersion], references: [id, version])
+}
