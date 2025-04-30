@@ -9,6 +9,7 @@
       "@controllers/*": ["src/controllers/*"],
       "@middlewares/*": ["src/middlewares/*"],
       "@models/*": ["src/models/*"],
+      "@repositories/*": ["src/repositories/*"],
       "@routes/*": ["src/routes/*"],
       "@database": ["generated/prisma/index"],
       "@root/*": ["src/*"],
