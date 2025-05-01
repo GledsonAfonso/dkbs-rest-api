@@ -36,6 +36,11 @@ After the DB is initiated, you will need to run it's migrations to create the ne
 pnpm run db-migrate
 ```
 
+If you want to have some preset data to play around, set `development` as your `NODE_ENV` in your environment file and run:
+
+```bash
+pnpm run db-seed
+```
 
 ## Running
 
