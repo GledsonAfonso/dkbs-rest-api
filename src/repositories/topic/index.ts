@@ -14,6 +14,14 @@ const create = async (data: CreateTopicParams): Promise<Topic> => {
   });
 };
 
+const findAllVersionsById = async (data: IdParam): Promise<Topic[]> => {
+  return databaseClient.topic.findMany({
+    where: {
+      id: data.id,
+    },
+  });
+};
+
 const findByIdAndVersion = async (data: IdAndVersionParams): Promise<Topic | null> => {
   return databaseClient.topic.findUnique({
     where: {
@@ -134,9 +142,14 @@ const update = async (data: UpdateTopicParams): Promise<Topic> => {
 };
 
 const _delete = async (data: IdParam) => {
+  const topics = await findAllVersionsById(data);
+
   return databaseClient.topic.deleteMany({
     where: {
       id: data.id,
+      version: {
+        in: topics.map(it => it.version),
+      }
     }
   })
 };
