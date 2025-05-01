@@ -5,7 +5,7 @@ import { CreateTopicParams, IdAndVersionParams, IdParam, TopicWithChildren, Upda
 
 const databaseClient = getDatabaseClient();
 
-const createTopic = async (data: CreateTopicParams): Promise<Topic> => {
+const create = async (data: CreateTopicParams): Promise<Topic> => {
   return databaseClient.topic.create({
     data: {
       ...data,
@@ -14,7 +14,7 @@ const createTopic = async (data: CreateTopicParams): Promise<Topic> => {
   });
 };
 
-const findTopicByIdAndVersion = async (data: IdAndVersionParams): Promise<Topic | null> => {
+const findByIdAndVersion = async (data: IdAndVersionParams): Promise<Topic | null> => {
   return databaseClient.topic.findUnique({
     where: {
       topicId: {
@@ -25,7 +25,7 @@ const findTopicByIdAndVersion = async (data: IdAndVersionParams): Promise<Topic 
   });
 };
 
-const findLatestTopic = async (data: IdParam): Promise<Topic | null> => {
+const findLatest = async (data: IdParam): Promise<Topic | null> => {
   return databaseClient.topic.findFirst({
     where: {
       id: data.id,
@@ -36,8 +36,8 @@ const findLatestTopic = async (data: IdParam): Promise<Topic | null> => {
   });
 };
 
-const findLatestTopicWithChildren = async (data: IdParam): Promise<TopicWithChildren | null> => {
-  const latestTopic = await findLatestTopic(data);
+const findLatestWithChildren = async (data: IdParam): Promise<TopicWithChildren | null> => {
+  const latestTopic = await findLatest(data);
 
   if (!latestTopic) {
     return null;
@@ -107,8 +107,8 @@ const combineParentWithChildren = (topics: TopicWithChildren[] | null): TopicWit
   return root;
 };
 
-const updateTopic = async (data: UpdateTopicParams): Promise<Topic> => {
-  const previousTopic = await findLatestTopic({
+const update = async (data: UpdateTopicParams): Promise<Topic> => {
+  const previousTopic = await findLatest({
     id: data.id,
   });
 
@@ -130,10 +130,10 @@ const updateTopic = async (data: UpdateTopicParams): Promise<Topic> => {
 
   console.log(newTopic);
 
-  return createTopic(newTopic);
+  return create(newTopic);
 };
 
-const deleteTopic = async (data: IdParam) => {
+const _delete = async (data: IdParam) => {
   return databaseClient.topic.deleteMany({
     where: {
       id: data.id,
@@ -141,11 +141,11 @@ const deleteTopic = async (data: IdParam) => {
   })
 };
 
-export default {
-  createTopic,
-  findTopicByIdAndVersion,
-  findLatestTopic,
-  findLatestTopicWithChildren,
-  updateTopic,
-  deleteTopic,
+export const topicRepository = {
+  create,
+  findByIdAndVersion,
+  findLatest,
+  findLatestWithChildren,
+  update,
+  delete: _delete,
 };

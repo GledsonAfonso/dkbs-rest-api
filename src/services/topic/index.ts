@@ -1,15 +1,15 @@
 import { NotFoundError } from "@middlewares/error-handler";
 import { Topic } from "@models/topic";
-import topicRepository from "@repositories/topic";
+import { topicRepository } from "@repositories/topic";
 import { IdAndVersionParams, TopicWithChildren } from "@repositories/topic/types";
 import { CreateTopicParams, IdParam, UpdateTopicParams } from "@services/topic/types";
 
-const createTopic = async (data: CreateTopicParams): Promise<Topic> => {
-  return topicRepository.createTopic(data);
+const create = async (data: CreateTopicParams): Promise<Topic> => {
+  return topicRepository.create(data);
 };
 
-const getTopicById = async (data: IdParam): Promise<Topic> => {
-  const topic = await topicRepository.findLatestTopic(data);
+const findById = async (data: IdParam): Promise<Topic> => {
+  const topic = await topicRepository.findLatest(data);
 
   if (!topic) {
     throw new NotFoundError({
@@ -20,8 +20,8 @@ const getTopicById = async (data: IdParam): Promise<Topic> => {
   return topic;
 };
 
-const getTopicByIdAndVersion = async (data: IdAndVersionParams): Promise<Topic> => {
-  const topic = await topicRepository.findTopicByIdAndVersion(data);
+const findByIdAndVersion = async (data: IdAndVersionParams): Promise<Topic> => {
+  const topic = await topicRepository.findByIdAndVersion(data);
 
   if (!topic) {
     throw new NotFoundError({
@@ -32,8 +32,8 @@ const getTopicByIdAndVersion = async (data: IdAndVersionParams): Promise<Topic> 
   return topic;
 };
 
-const getTopicWithChildren = async (data: IdParam): Promise<TopicWithChildren> => {
-  const topic = await topicRepository.findLatestTopicWithChildren(data);
+const findWithChildren = async (data: IdParam): Promise<TopicWithChildren> => {
+  const topic = await topicRepository.findLatestWithChildren(data);
 
   if (!topic) {
     throw new NotFoundError({
@@ -44,19 +44,19 @@ const getTopicWithChildren = async (data: IdParam): Promise<TopicWithChildren> =
   return topic;
 };
 
-const updateTopic = async (data: UpdateTopicParams): Promise<Topic> => {
-  return topicRepository.updateTopic(data);
+const update = async (data: UpdateTopicParams): Promise<Topic> => {
+  return topicRepository.update(data);
 };
 
-const deleteTopic = async (data: IdParam): Promise<void> => {
-  await topicRepository.deleteTopic(data);
+const _delete = async (data: IdParam): Promise<void> => {
+  await topicRepository.delete(data);
 };
 
 export const topicService = {
-  createTopic,
-  getTopicById,
-  getTopicByIdAndVersion,
-  getTopicWithChildren,
-  updateTopic,
-  deleteTopic,
+  create,
+  findById,
+  findByIdAndVersion,
+  findWithChildren,
+  update,
+  delete: _delete,
 };
