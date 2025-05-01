@@ -15,9 +15,12 @@ export const topicSchema = z.object({
   parentTopicVersion: z.number().optional(),
 });
 
-export const byIdSchema = z.object({
+export const byIdAndVersionSchema = z.object({
   id: z.coerce.number(),
+  version: z.coerce.number().optional(),
 });
+
+export type ByIdAndVersionParams = z.infer<typeof byIdAndVersionSchema>;
 
 export const updateTopicSchema = z.object({
   id: z.coerce.number(),
