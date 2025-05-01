@@ -28,6 +28,13 @@ export const getTopicByParams = async (req: Request, res: Response): Promise<voi
   res.status(200).json(response);
 };
 
+export const getTopicWithChildren = async (req: Request, res: Response): Promise<void> => {
+  const params = byIdAndVersionSchema.parse(req.params);
+  const response = await topicService.getTopicWithChildren(params);
+  
+  res.status(200).json(response);
+};
+
 export const updateTopic = async (req: Request, res: Response): Promise<void> => {
   const requestBody = updateTopicSchema.parse({
     ...req.params,

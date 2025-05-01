@@ -19,3 +19,7 @@ export type CreateTopicParams = Pick<
 };
 
 export type UpdateTopicParams = Partial<Topic> & IdParam;
+
+export type TopicWithChildren = Topic & {
+  childTopics: Topic[];
+};
