@@ -106,6 +106,37 @@ async function main() {
     }
   });
 
+  await prisma.topic.upsert({
+    where: {
+      topicId: {
+        id: 6,
+        version: 1,
+      },
+    },
+    update: {},
+    create: {
+      name: "topic-6",
+      content: "content-6",
+      version: 1
+    }
+  });
+
+  const topic6_2 = await prisma.topic.upsert({
+    where: {
+      topicId: {
+        id: 6,
+        version: 2,
+      },
+    },
+    update: {},
+    create: {
+      id: 6,
+      name: "topic-6",
+      content: "content-6",
+      version: 2
+    }
+  });
+
   // Resources
   await prisma.resource.upsert({
     where: {
@@ -174,6 +205,20 @@ async function main() {
       type: "link",
       topicId: topic5.id,
       topicVersion: topic5.version,
+    }
+  });
+
+  await prisma.resource.upsert({
+    where: {
+      id: 6,
+    },
+    update: {},
+    create: {
+      description: "resource-6",
+      url: "http://resource-6.com",
+      type: "video",
+      topicId: topic6_2.id,
+      topicVersion: topic6_2.version,
     }
   });
   
