@@ -37,8 +37,14 @@ const findLatestTopic = async (data: IdParam): Promise<Topic | null> => {
 };
 
 const findLatestTopicWithChildren = async (data: IdParam): Promise<TopicWithChildren | null> => {
-  return databaseClient.$queryRaw<TopicWithChildren | null>`
-    WITH RECURSIVE json_tree AS (
+  const latestTopic = await findLatestTopic(data);
+
+  if (!latestTopic) {
+    return null;
+  }
+
+  const result = await databaseClient.$queryRaw<TopicWithChildren[] | null>`
+    WITH RECURSIVE all_child_connections AS (
       SELECT
         t."id",
         t."name",
@@ -50,8 +56,7 @@ const findLatestTopicWithChildren = async (data: IdParam): Promise<TopicWithChil
         t."updatedAt",
         '[]'::jsonb AS "childTopics"
       FROM "Topic" t
-      WHERE t."id" = ${data.id}
-      ORDER BY t."createdAt" DESC
+      WHERE t."id" = ${latestTopic.id} AND t."version" = ${latestTopic.version}
 
       UNION ALL
 
@@ -66,43 +71,40 @@ const findLatestTopicWithChildren = async (data: IdParam): Promise<TopicWithChil
         t."updatedAt",
         '[]'::jsonb AS "childTopics"
       FROM "Topic" t
-      JOIN json_tree jt ON t.parent_id = jt.id
-    ),
-    final_tree AS (
-      SELECT
-        jt_outer.*,
-        (
-          SELECT jsonb_agg(jsonb_build_object(
-            'id', jt_inner."id",
-            'name', jt_inner."name",
-            'content', jt_inner."content",
-            'version', jt_inner."version",
-            'parentTopicId', jt_inner."parentTopicId",
-            'parentTopicVersion', jt_inner."parentTopicVersion",
-            'createdAt', jt_inner."createdAt",
-            'updatedAt', jt_inner."updatedAt",
-            'childTopics', jt_inner."childTopics"
-          ))
-          FROM json_tree jt_inner
-          WHERE jt_inner.parent_id = jt_outer.id
-        ) AS "childTopics"
-      FROM json_tree jt_outer
+      INNER JOIN all_child_connections acc ON t."parentTopicId" = acc."id"
     )
 
-    SELECT jsonb_build_object(
-      'id', ft."id",
-      'name', ft."name",
-      'content', ft."content",
-      'version', ft."version",
-      'parentTopicId', ft."parentTopicId",
-      'parentTopicVersion', ft."parentTopicVersion",
-      'createdAt', ft."createdAt",
-      'updatedAt', ft."updatedAt",
-      'childTopics', ft."childTopics"
-    )
-    FROM final_tree ft
-    WHERE ft.id = ${data.id};
+    SELECT *
+    FROM all_child_connections acc
   `;
+
+  return combineParentWithChildren(result);
+};
+
+const combineParentWithChildren = (topics: TopicWithChildren[] | null): TopicWithChildren | null => {
+  if (!topics) {
+    return null;
+  }
+
+  const topicMap = new Map<number, TopicWithChildren>();
+
+  for (const topic of topics) {
+    topicMap.set(topic.id, topic);
+  }
+
+  let root: TopicWithChildren | null = null;
+
+  for (const topic of topics) {
+    if (topic.parentTopicId === null) {
+      root = topic;
+      continue;
+    }
+    
+    const parent = topicMap.get(topic.parentTopicId);
+    parent!.childTopics.push(topic);
+  }
+
+  return root;
 };
 
 const updateTopic = async (data: UpdateTopicParams): Promise<Topic> => {
