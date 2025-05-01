@@ -91,6 +91,21 @@ async function main() {
     }
   });
 
+  const topic5 = await prisma.topic.upsert({
+    where: {
+      topicId: {
+        id: 5,
+        version: 1,
+      },
+    },
+    update: {},
+    create: {
+      name: "topic-5",
+      content: "content-5",
+      version: 1
+    }
+  });
+
   // Resources
   await prisma.resource.upsert({
     where: {
@@ -145,6 +160,20 @@ async function main() {
       type: "link",
       topicId: topic4.id,
       topicVersion: topic4.version,
+    }
+  });
+
+  await prisma.resource.upsert({
+    where: {
+      id: 5,
+    },
+    update: {},
+    create: {
+      description: "resource-5",
+      url: "http://resource-5.com",
+      type: "link",
+      topicId: topic5.id,
+      topicVersion: topic5.version,
     }
   });
   
