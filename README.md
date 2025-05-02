@@ -2,6 +2,7 @@
 
 > A REST API for a Dynamic Knowledge Base System.
 
+[<img src="https://run.pstmn.io/button.svg" alt="Run In Postman" style="width: 128px; height: 32px;">](https://app.getpostman.com/run-collection/2579984-4788b9ee-f07a-4aa9-bed9-7f1e31fb206d?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D2579984-4788b9ee-f07a-4aa9-bed9-7f1e31fb206d%26entityType%3Dcollection%26workspaceId%3D97575bed-61c4-460b-b22c-930ec2a15f87)
 
 ## Prerequisites
 
