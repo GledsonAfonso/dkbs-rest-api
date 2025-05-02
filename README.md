@@ -1,6 +1,6 @@
 # dkbs-rest-api
 
-> A simple chat-room project to study web sockets.
+> A REST API for a Dynamic Knowledge Base System.
 
 
 ## Prerequisites
