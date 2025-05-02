@@ -42,6 +42,12 @@ If you want to have some preset data to play around, set `development` as your `
 pnpm run db-seed
 ```
 
+If you ever need to restart your DB instance with the default seed data, just run:
+
+```bash
+./scripts/restart-db.sh
+```
+
 ## Running
 
 ### with `tsx`
@@ -50,22 +56,6 @@ To run in dev mode, execute:
 
 ```bash
 pnpm run dev
-```
-
-A message like `Server running on port 3000 [development mode].` should show after a few seconds. That means that the project is up and running.
-
-### with compiled files
-
-To run it without `tsx` you will need to build the project first:
-
-```bash
-pnpm run build
-```
-
-And then run it with:
-
-```bash
-pnpm run start
 ```
 
 A message like `Server running on port 3000 [development mode].` should show after a few seconds. That means that the project is up and running.
