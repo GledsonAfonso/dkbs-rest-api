@@ -20,8 +20,6 @@ export const byIdAndVersionSchema = z.object({
   version: z.coerce.number().optional(),
 });
 
-export type ByIdAndVersionParams = z.infer<typeof byIdAndVersionSchema>;
-
 export const updateTopicSchema = z.object({
   id: z.coerce.number(),
   name: z.string().optional(),
