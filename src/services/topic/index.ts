@@ -1,10 +1,16 @@
 import { NotFoundError } from "@middlewares/error-handler";
-import { Topic } from "@models/topic";
+import { Topic, TopicWithChildren } from "@models/topic";
 import { topicRepository } from "@repositories/topic";
-import { IdAndVersionParams, TopicWithChildren } from "@repositories/topic/types";
-import { CreateTopicParams, IdParam, UpdateTopicParams } from "@services/topic/types";
+import {
+  CreateParams,
+  FindShortestPathToDestinationParams,
+  FindShortestPathToDestinationResponse,
+  IdAndVersionParams,
+  IdParam,
+  UpdateParams
+} from "@services/topic/types";
 
-const create = async (data: CreateTopicParams): Promise<Topic> => {
+const create = async (data: CreateParams): Promise<Topic> => {
   return topicRepository.create(data);
 };
 
@@ -44,7 +50,15 @@ const findWithChildren = async (data: IdParam): Promise<TopicWithChildren> => {
   return topic;
 };
 
-const update = async (data: UpdateTopicParams): Promise<Topic> => {
+const findShortestPathToDestination = async (data: FindShortestPathToDestinationParams): Promise<FindShortestPathToDestinationResponse> => {
+  const path = await topicRepository.findShortestPathToDestination(data);
+
+  return {
+    path,
+  };
+};
+
+const update = async (data: UpdateParams): Promise<Topic> => {
   return topicRepository.update(data);
 };
 
@@ -57,6 +71,7 @@ export const topicService = {
   findById,
   findByIdAndVersion,
   findWithChildren,
+  findShortestPathToDestination,
   update,
   delete: _delete,
 };

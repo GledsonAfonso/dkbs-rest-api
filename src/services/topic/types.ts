@@ -1,12 +1,18 @@
-import { CreateTopicParams as RepositoryCreateTopicParams, UpdateTopicParams as RepositoryUpdateTopicParams } from "@repositories/topic/types";
+import {
+  CreateParams as RepositoryCreateParams,
+  FindShortestPathToDestinationParams as RepositoryFindShortestPathToDestinationParams,
+  UpdateParams as RepositoryUpdateParams
+} from "@repositories/topic/types";
 
 export type IdParam = {
   id: number;
 };
 
-export type IdAndVersion = IdParam & {
+export type IdAndVersionParams = IdParam & {
   version: number;
 };
 
-export type CreateTopicParams = RepositoryCreateTopicParams;
-export type UpdateTopicParams = RepositoryUpdateTopicParams & IdParam;
+export type CreateParams = RepositoryCreateParams;
+export type FindShortestPathToDestinationParams = RepositoryFindShortestPathToDestinationParams;
+export type FindShortestPathToDestinationResponse = { path: string };
+export type UpdateParams = RepositoryUpdateParams & IdParam;

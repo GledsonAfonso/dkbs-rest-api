@@ -8,7 +8,7 @@ export type IdAndVersionParams = IdParam & {
   version: number;
 };
 
-export type CreateTopicParams = Pick<
+export type CreateParams = Pick<
   Topic,
   | "name"
   | "content"
@@ -18,8 +18,9 @@ export type CreateTopicParams = Pick<
   parentTopicVersion?: number | null;
 };
 
-export type UpdateTopicParams = Partial<Topic> & IdParam;
-
-export type TopicWithChildren = Topic & {
-  childTopics: Topic[];
+export type FindShortestPathToDestinationParams = {
+  startingTopic: number;
+  destinationTopic: number;
 };
+
+export type UpdateParams = Partial<Topic> & IdParam;

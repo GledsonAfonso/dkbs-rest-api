@@ -5,6 +5,7 @@ import { Router } from "express";
 const router = Router();
 
 router.post("/", controllerHandler(topicController.create));
+router.post("/shortest-path", controllerHandler(topicController.getShortestPathToDestination));
 router.get("/:id", controllerHandler(topicController.getByParams));
 router.get("/:id/children", controllerHandler(topicController.getWithChildren));
 router.put("/:id", controllerHandler(topicController.update));

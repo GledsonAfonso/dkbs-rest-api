@@ -1,12 +1,12 @@
 import { getDatabaseClient } from "@config/database";
 import { NotFoundError } from "@middlewares/error-handler";
-import { Topic } from "@models/topic";
+import { Topic, TopicWithChildren } from "@models/topic";
 import { resourceRepository } from "@repositories/resource";
-import { CreateTopicParams, IdAndVersionParams, IdParam, TopicWithChildren, UpdateTopicParams } from "@repositories/topic/types";
+import { CreateParams, FindShortestPathToDestinationParams, IdAndVersionParams, IdParam, UpdateParams } from "@repositories/topic/types";
 
 const databaseClient = getDatabaseClient();
 
-const create = async (data: CreateTopicParams): Promise<Topic> => {
+const create = async (data: CreateParams): Promise<Topic> => {
   return databaseClient.topic.create({
     data: {
       ...data,
@@ -116,7 +116,42 @@ const combineParentWithChildren = (topics: TopicWithChildren[] | null): TopicWit
   return root;
 };
 
-const update = async (data: UpdateTopicParams): Promise<Topic> => {
+const findShortestPathToDestination = async (data: FindShortestPathToDestinationParams): Promise<string> => {
+  const result = await databaseClient.$queryRaw<{ path: number[] }[] | null>`
+    WITH RECURSIVE topic_graph AS (
+      SELECT
+        t."id",
+        t."parentTopicId",
+        ARRAY["id"] AS "path"
+      FROM "Topic" t
+      WHERE t."id" = ${data.startingTopic}
+
+      UNION ALL
+
+      SELECT
+        t."id",
+        t."parentTopicId",
+        tg."path" || t."id"                 -- appending the current topic id to the array
+      FROM topic_graph tg
+      JOIN "Topic" t
+        ON (
+          t."id" = tg."parentTopicId"       -- this allows moves the searcher up
+          OR t."parentTopicId" = tg."id"    -- and this moves it down
+        )
+      WHERE NOT t."id" = ANY(tg."path")     -- this avoids an endless loops
+    )
+
+    SELECT tg."path"
+    FROM topic_graph tg
+    WHERE tg.id = ${data.destinationTopic}
+    ORDER BY array_length(tg."path", 1)
+    LIMIT 1;
+  `;
+
+  return result?.[0]?.path?.join("->") ?? `No path found from topic ${data.startingTopic} to ${data.destinationTopic}.`;
+};
+
+const update = async (data: UpdateParams): Promise<Topic> => {
   const previousTopic = await findLatest({
     id: data.id,
   });
@@ -177,6 +212,7 @@ export const topicRepository = {
   findByIdAndVersion,
   findLatest,
   findLatestWithChildren,
+  findShortestPathToDestination,
   update,
   delete: _delete,
 };
