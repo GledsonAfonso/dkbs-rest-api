@@ -1,6 +1,6 @@
 import { getDatabaseClient } from "@config/database";
 import { Resource } from "@models/resource";
-import { CreateParams, IdParam, UpdateParams } from "@repositories/resource/types";
+import { CreateParams, IdParam, UpdateParams, UpdateTopicVersionParams } from "@repositories/resource/types";
 
 const databaseClient = getDatabaseClient();
 
@@ -31,6 +31,17 @@ const update = async (data: UpdateParams): Promise<Resource> => {
   });
 };
 
+const updateTopicVersion = async (data: UpdateTopicVersionParams): Promise<void> => {
+  await databaseClient.resource.updateMany({
+    data: {
+      topicVersion: data.topicVersion,
+    },
+    where: {
+      topicId: data.topicId,
+    },
+  });
+};
+
 const _delete = async (data: IdParam) => {
   return databaseClient.resource.deleteMany({
     where: {
@@ -44,5 +55,6 @@ export const resourceRepository = {
   findAll,
   findById,
   update,
+  updateTopicVersion,
   delete: _delete,
 };

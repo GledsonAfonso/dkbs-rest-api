@@ -1,6 +1,7 @@
 import { getDatabaseClient } from "@config/database";
 import { NotFoundError } from "@middlewares/error-handler";
 import { Topic } from "@models/topic";
+import { resourceRepository } from "@repositories/resource";
 import { CreateTopicParams, IdAndVersionParams, IdParam, TopicWithChildren, UpdateTopicParams } from "@repositories/topic/types";
 
 const databaseClient = getDatabaseClient();
@@ -126,7 +127,7 @@ const update = async (data: UpdateTopicParams): Promise<Topic> => {
     });
   }
 
-  const newTopic: Topic = {
+  const newTopicParams: Topic = {
     ...previousTopic,
     ...data,
     version: previousTopic.version + 1, // iterating the field for a new version
@@ -136,9 +137,26 @@ const update = async (data: UpdateTopicParams): Promise<Topic> => {
     updatedAt: new Date(),
   };
 
-  console.log(newTopic);
+  const newTopicCreated = await create(newTopicParams);
 
-  return create(newTopic);
+  await updateDependencies(newTopicCreated);
+
+  return newTopicCreated;
+};
+
+const updateDependencies = async (newTopic: Topic) => {
+  await resourceRepository.updateTopicVersion({
+    topicId: newTopic.id,
+    topicVersion: newTopic.version,
+  });
+  await databaseClient.topic.updateMany({
+    data: {
+      parentTopicVersion: newTopic.version,
+    },
+    where: {
+      parentTopicId: newTopic.id,
+    },
+  });
 };
 
 const _delete = async (data: IdParam) => {

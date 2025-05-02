@@ -18,3 +18,9 @@ export type UpdateParams = Partial<
     | "updatedAt"
   >
 >;
+
+export type UpdateTopicVersionParams = Pick<
+  Resource,
+  | "topicId"
+  | "topicVersion"
+>;
